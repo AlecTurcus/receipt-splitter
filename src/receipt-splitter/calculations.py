@@ -31,36 +31,52 @@ def calculate_person_subtotal(receipt: Receipt) -> dict[str, int]:
     if not validate_subtotal(receipt):
         raise ValueError("Receipt subtotal doesn't match item prices")
     
-    totals = {}
+    subtotals = {}
     for item in receipt.items:
 
         split = split_item(item)
 
         for name in split:
-            if name in totals:
-                totals[name] += split[name]
+            if name in subtotals:
+                subtotals[name] += split[name]
             else:
-                totals[name] = split[name]
+                subtotals[name] = split[name]
 
-    return round_subtotal(totals, int(receipt.subtotal * 100))
+    return allocate_cents(subtotals, int(receipt.subtotal * 100))
 
-def round_subtotal(totals: dict[str, Fraction], cents: int) -> dict[str, int]:
-    """Round exact fractional cent subtotals while preserving receipt subtotal"""
-    rounded_down = {}
+def allocate_cents(subtotals: dict[str, Fraction], cents: int) -> dict[str, int]:
+    """Convert fractional cent allocations into whole cents while preserving total"""
+    allocated = {}
     fractionals = {}
-    for name in totals:
-        rounded_down[name], fractionals[name] = divmod(totals[name], 1)
+    for name in subtotals:
+        allocated[name], fractionals[name] = divmod(subtotals[name], 1)
 
-    if cents == sum(rounded_down.values()):
-        return rounded_down
+    if cents == sum(allocated.values()):
+        return allocated
 
-    remainder = cents - sum(rounded_down.values())
+    remainder = cents - sum(allocated.values())
     fractionals = dict(sorted(fractionals.items(), key=lambda item: item[1], reverse=True))
 
     for name in fractionals:
         if not remainder:
             break
-        rounded_down[name] += 1
+        allocated[name] += 1
         remainder -= 1
 
-    return rounded_down
+    return allocated
+
+def calculate_person_tax(receipt: Receipt, subtotals: dict[str, int]) -> dict[str, int]:
+    if receipt.tax == 0:
+        return {name: 0 for name in subtotals}
+    tax_allocations = {}
+    subtotal_cents = int(receipt.subtotal * 100)
+    tax_cents = int(receipt.tax * 100)
+
+    if subtotal_cents == 0:
+        raise ValueError("Zero subtotal")
+
+    for name in subtotals:
+        tax_allocations[name] = (Fraction(subtotals[name], subtotal_cents) * tax_cents)
+
+    
+    return allocate_cents(tax_allocations, tax_cents)
