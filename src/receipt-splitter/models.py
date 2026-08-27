@@ -7,7 +7,7 @@ class Item(BaseModel) :
     shared_by: list[Person] = Field(default_factory = list)
 
 class Receipt(BaseModel):
-    items: list[Item]
+    items: list[Item] = Field(default_factory = list)
     subtotal: Decimal
     tax: Decimal
     tip: Decimal
