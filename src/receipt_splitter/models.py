@@ -1,6 +1,10 @@
 from pydantic import BaseModel, Field
 from decimal import Decimal
 
+
+class Person(BaseModel):
+    name: str
+
 class Item(BaseModel) :
     name: str
     price: Decimal
@@ -14,5 +18,15 @@ class Receipt(BaseModel):
     total: Decimal
     people: list[Person] = Field(default_factory = list)
 
-class Person(BaseModel):
+# Models for AI receipt extraction layer
+
+class ExtractedItem(BaseModel):
     name: str
+    price: str
+
+class ExtractedReceipt(BaseModel):
+    items: list[ExtractedItem]
+    subtotal: str
+    tax: str
+    tip: str
+    total: str
