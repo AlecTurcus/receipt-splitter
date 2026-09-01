@@ -3,15 +3,11 @@ from google import genai
 from .models import ExtractedReceipt, Receipt, Item
 from decimal import Decimal, InvalidOperation
 import base64
-import mimetypes
 
 load_dotenv()
 client = genai.Client()
 
-def extract_receipt(image_path: str) -> ExtractedReceipt:
-
-    with open(image_path, "rb") as file:
-        image_bytes = file.read()
+def extract_receipt(image_bytes: bytes, mime_type: str) -> ExtractedReceipt:
 
     image_data = base64.b64encode(image_bytes).decode("utf-8")
 
@@ -26,10 +22,8 @@ def extract_receipt(image_path: str) -> ExtractedReceipt:
     - Do not include subtotal, tax, tip, or total as purchased items.
     """
 
-    mime_type = get_mime_type(image_path)
-
     response = client.interactions.create(
-        model = "gemini-3.5-flash",
+        model = "gemini-3.5-flash-lite",
         input = [
             {
                 "type": "image",
@@ -73,11 +67,3 @@ def extracted_to_receipt(extracted: ExtractedReceipt) -> Receipt:
         tip = parse_money(extracted.tip),
         total = parse_money(extracted.total)
     )
-
-def get_mime_type(image_path: str) -> str:
-    mime_type, _ = mimetypes.guess_file_type(image_path)
-    
-    if mime_type is None or not mime_type.startswith("image/"):
-        raise ValueError("Unsupported image file type")
-
-    return mime_type

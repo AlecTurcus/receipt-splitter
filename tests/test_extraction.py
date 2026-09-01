@@ -1,5 +1,4 @@
-import pytest
-from receipt_splitter.extraction import parse_money, extracted_to_receipt, get_mime_type
+from receipt_splitter.extraction import parse_money, extracted_to_receipt
 from receipt_splitter.models import ExtractedItem, ExtractedReceipt, Item, Receipt
 from decimal import Decimal
 
@@ -58,13 +57,3 @@ def test_extracted_to_receipt_invalid():
         tip = Decimal("0.00"),
         total = Decimal("43.01")
     )
-
-def test_get_mime_type_jpeg():
-    assert get_mime_type("receipt.jpg") == "image/jpeg"
-
-def test_get_mime_type_png():
-    assert get_mime_type("receipt.png") == "image/png"
-
-def test_get_mime_type_invalid():
-    with pytest.raises(ValueError):
-        get_mime_type("receipt.txt")

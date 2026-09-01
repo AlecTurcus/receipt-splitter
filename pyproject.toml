@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "receipt-splitter"
 version = "0.1.0"
 requires-python = ">=3.10"
-dependencies = [ "pydantic", "google-genai", "python-dotenv"]
+dependencies = [ "pydantic", "google-genai", "python-dotenv", "fastapi", "uvicorn", "python-multipart"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
