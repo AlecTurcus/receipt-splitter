@@ -2,12 +2,29 @@ from fastapi import FastAPI, UploadFile, File, HTTPException
 from .extraction import extract_receipt, extracted_to_receipt
 from .models import Receipt
 from .calculations import calculate_bill
+from fastapi.middleware.cors import CORSMiddleware
 
 
 app = FastAPI()
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins = ["http://localhost:5173"],
+    allow_credentials = True,
+    allow_methods = ["*"],
+    allow_headers = ["*"]
+)
+
 @app.post("/receipts/extract")
 async def extract_receipt_endpoint(file: UploadFile = File(...)):
+    """Extract receipt information from uploaded image
+    
+    Args:
+        file(UploadFile): Receipt image uploaded by user
+
+    Returns:
+        Receipt: Receipt containing extracted item and monetary values
+    """
     if file.content_type is None or not file.content_type.startswith("image/"):
         raise HTTPException(415, "Unsupported file type")
     
@@ -21,6 +38,14 @@ async def extract_receipt_endpoint(file: UploadFile = File(...)):
 
 @app.post("/receipts/calculate")
 def calculate_receipt(receipt: Receipt):
+    """Calculates dollar amount owed by each person for a receipt
+
+    Args:
+        receipt (Receipt): Completed receipt containing item assignments and totals
+
+    Returns:
+        dict[str, decimal]: Final dollar amount owed by each person
+    """
 
     try:
         return calculate_bill(receipt)

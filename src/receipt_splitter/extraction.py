@@ -8,6 +8,15 @@ load_dotenv()
 client = genai.Client()
 
 def extract_receipt(image_bytes: bytes, mime_type: str) -> ExtractedReceipt:
+    """Uses AI to extract pertinent info from receipt and output it in usable format
+    
+    Args:
+        image_bytes (bytes): Raw bytes of image data
+        mime_type (str): MIME type of file
+    
+    Returns:
+        ExtractedReceipt: Structured receipt info extracted from image
+    """
 
     image_data = base64.b64encode(image_bytes).decode("utf-8")
 
@@ -45,12 +54,28 @@ def extract_receipt(image_bytes: bytes, mime_type: str) -> ExtractedReceipt:
     return ExtractedReceipt.model_validate_json(response.output_text)
 
 def parse_money(value: str) -> Decimal:
+    """Converts string value to decimal value
+
+    Args:
+        value (str): String value to convert
+
+    Returns:
+        Decimal: String value converted to Decimal, or 0.00 if conversion fails
+    """
     try:
         return Decimal(value)
     except InvalidOperation:
         return Decimal("0.00")
 
 def extracted_to_receipt(extracted: ExtractedReceipt) -> Receipt:
+    """Convert an ExtractedReceipt into a Receipt
+
+    Args:
+        extracted (ExtractedReceipt): Receipt info extracted by AI
+
+    Returns:
+        Receipt: Receipt containing Decimal values and items
+    """
     items = []
 
     for item in extracted.items:
