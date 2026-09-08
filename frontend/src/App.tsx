@@ -118,6 +118,8 @@ function App() {
       ...receipt,
       items: updatedItems
     })
+
+    setSplitResult(null)
   }
 
   function updateReceipt(field: "tax" | "tip", value: string) {
@@ -129,6 +131,8 @@ function App() {
       ...receipt,
       [field]: value
     })
+
+    setSplitResult(null)
   }
 
   function toCents(value: string) {
