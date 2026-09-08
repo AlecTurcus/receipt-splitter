@@ -173,7 +173,7 @@ function App() {
 
     setPersonName("")
     setErrorMessage("")
-
+    setSplitResult(null)
   }
 
   function togglePersonForItem(itemIndex: number, person: Person){
@@ -201,6 +201,7 @@ function App() {
       ...receipt,
       items: updatedItems
     })
+    setSplitResult(null)
   }
 
   return (
