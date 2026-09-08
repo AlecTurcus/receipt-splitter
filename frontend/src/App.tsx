@@ -1,26 +1,6 @@
 import './App.css'
 import { useState } from 'react'
-
-type Person = {
-  name: string
-}
-
-type Item = {
-  name: string
-  price: string
-  shared_by: Person[]
-}
-
-type Receipt = {
-  items: Item[]
-  tax: string
-  tip: string
-  people: Person[]
-}
-
-type SplitResult = {
-  [name: string]: number
-}
+import type { Person, Receipt, SplitResult } from './types'
 
 
 function App() {
@@ -168,7 +148,7 @@ function App() {
   }
 
   return (
-    <div>
+    <div className = "app">
       <h1>Receipt Splitter</h1>
       <p>Upload a receipt.</p>
       <input 
@@ -188,94 +168,94 @@ function App() {
       </button>
 
       {receipt && (
-        <div>
-
+        <div className = "receipt-section">
           <h2>Receipt</h2>
-
+          <div className = "item-header">
+            <span>Item</span>
+            <span>Price</span>
+          </div>
           {receipt.items.map((item, index) => (
-            <div key = {index}>
+            <div className = "item" key = {index}>
+              <div className = "item-fields">
+                <input
+                  value = {item.name}
+                  onChange = {(event) => {
+                    updateItem(index, "name", event.target.value)
+                  }}
+                />
 
-              <input
-                value = {item.name}
-                onChange = {(event) => {
-                  updateItem(index, "name", event.target.value)
-                }}
-              />
+                <input
+                  type = "text"
+                  value = {item.price}
+                  onChange = {(event) => {
+                    const value = event.target.value
 
-              <input
-                type = "text"
-                value = {item.price}
-                onChange = {(event) => {
-                  const value = event.target.value
-
-                  if (/^\d*(\.\d{0,2})?$/.test(value)) {
-                    updateItem(index, "price", event.target.value)
-                  }
-                }}
-              />
-
-              {receipt.people.map((person) => {
-                const isChecked = item.shared_by.some(
-                  assignedPerson => assignedPerson.name === person.name
-                )
-                return (
-                  <label key = {person.name}>
-                    <input
-                      type = "checkbox"
-                      checked = {isChecked}
-                      onChange={() => {
-                        togglePersonForItem(index, person)
-                      }}
-                    />
-                    {person.name}
-                  </label>
-                )
-              })}
+                    if (/^\d*(\.\d{0,2})?$/.test(value)) {
+                      updateItem(index, "price", event.target.value)
+                    }
+                  }}
+                />
+              </div>
+              <div className = "item-people">
+                {receipt.people.map((person) => {
+                  const isChecked = item.shared_by.some(
+                    assignedPerson => assignedPerson.name === person.name
+                  )
+                  return (
+                    <label key = {person.name}>
+                      <input
+                        type = "checkbox"
+                        checked = {isChecked}
+                        onChange={() => {
+                          togglePersonForItem(index, person)
+                        }}
+                      />
+                      {person.name}
+                    </label>
+                  )
+                })}
+              </div>
 
             </div>
           ))}
-
-          <label>
-            Subtotal:
+          <div className = "total-row">
+            <label>Subtotal:</label>
             <input value = {fromCents(subtotalCents)} readOnly/>
-          </label>
-
-          <label>
-            Tax:
+          </div>
+          <div className = "total-row">
+            <label>Tax:</label>
             <input
-              type = "text"
-              value = {receipt.tax}
-              onChange = {(event) => {
-                const value = event.target.value
+                type = "text"
+                value = {receipt.tax}
+                onChange = {(event) => {
+                  const value = event.target.value
 
-                if (/^(\d+(\.\d{0,2})?)?$/.test(value)) {
-                  updateReceipt("tax", event.target.value)
-                }
+                  if (/^(\d+(\.\d{0,2})?)?$/.test(value)) {
+                    updateReceipt("tax", event.target.value)
+                  }
 
-              }}
-            />
-          </label>
-
-          <label>
-            Tip:
+                }}
+              />
+          </div>
+          <div className = "total-row">
+            <label>Tip:</label>
             <input
-              type = "text"
-              value = {receipt.tip}
-              onChange = {(event) => {
-                const value = event.target.value
+                type = "text"
+                value = {receipt.tip}
+                onChange = {(event) => {
+                  const value = event.target.value
 
-                if (/^(\d+(\.\d{0,2})?)?$/.test(value)) {
-                  updateReceipt("tip", event.target.value)
-                }
+                  if (/^(\d+(\.\d{0,2})?)?$/.test(value)) {
+                    updateReceipt("tip", event.target.value)
+                  }
 
-              }}
-            />
-          </label>
-
-          <label>
-            Total:
+                }}
+              />
+          </div>
+          <div className = "total-row">
+            <label>Total:</label>
             <input value = {fromCents(totalCents)} readOnly/>
-          </label>
+          </div>
           <div>
             <h3>People</h3>
 
@@ -289,13 +269,14 @@ function App() {
             <button onClick = {addPerson}>
               Add Person
             </button>
-            
-            {receipt.people.map((person, index) => (
-              <p key = {index}>{person.name}</p>
-            ))}
+            <div className = "people-list">
+              {receipt.people.map((person, index) => (
+                <span className = "person" key = {index}>{person.name} </span>
+              ))}
+            </div>
           </div>
 
-          <button onClick = {handleCalculate}>
+          <button className = "primary-button" onClick = {handleCalculate}>
             Calculate
           </button>
 
@@ -303,13 +284,15 @@ function App() {
         
       )}
       {splitResult && (
-        <div>
-          <h3>Split</h3>
+        <div className = " split-section">
+          <h2>Split</h2>
 
           {Object.entries(splitResult).map(([name, amount]) => (
-            <p key = {name}>
-              {name}: ${amount.toFixed(2)}
-            </p>
+            <div className = "split-row">
+              <p key = {name}>
+                {name}: ${amount.toFixed(2)}
+              </p>
+            </div>
           ))}
         </div>
       )}
