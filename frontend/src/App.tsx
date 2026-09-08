@@ -8,6 +8,9 @@ function App() {
   const [receipt, setReceipt] = useState<Receipt | null>(null)
   const [personName, setPersonName] = useState("")
   const [splitResult, setSplitResult] = useState<SplitResult | null>(null)
+  const [errorMessage, setErrorMessage] = useState("")
+  const [isUploading, setIsUploading] = useState(false)
+  const [isCalculating, setIsCalculating] = useState(false)
 
   const subtotalCents = receipt ? receipt.items.reduce((sum, item) => {
       return sum + toCents(item.price)
@@ -23,10 +26,31 @@ function App() {
     const formData = new FormData()
     formData.append("file", selectedFile)
 
-    const response = await fetch("http://127.0.0.1:8000/receipts/extract", {method: "POST", body: formData})
+    setIsUploading(true)
+    try {
+      const response = await fetch(
+        "http://127.0.0.1:8000/receipts/extract",
+        {
+          method: "POST",
+          body: formData
+        }
+      )
+    
 
-    const data = await response.json()
-    setReceipt(data)
+      if (!response.ok){
+          const errorData = await response.json()
+          setErrorMessage(errorData.detail || "Unable to extract receipt.")
+          return
+      }
+
+      const data = await response.json()
+      setReceipt(data)
+      setErrorMessage("")
+    } catch {
+      setErrorMessage("Unable to connect to server.")
+    } finally {
+      setIsUploading(false)
+    }
   }
 
   async function handleCalculate() {
@@ -39,6 +63,7 @@ function App() {
     )
 
     if (hasUnassignedItem) {
+      setErrorMessage("Assign at least one person to every item.")
       return
     }
 
@@ -48,19 +73,33 @@ function App() {
       total: fromCents(totalCents)
     }
     
-    const response = await fetch(
-      "http://127.0.0.1:8000/receipts/calculate",
-       {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(receiptToCalculate)
-        }
-      )
+    setIsCalculating(true)
+    try {
+      const response = await fetch(
+        "http://127.0.0.1:8000/receipts/calculate",
+         {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(receiptToCalculate)
+          }
+        )
 
+      if (!response.ok){
+        const errorData = await response.json()
+        setErrorMessage(errorData.detail || "Unable to calculate receipt.")
+        return
+      }
+    
       const data = await response.json()
       setSplitResult(data)
+      setErrorMessage("")
+    } catch {
+      setErrorMessage("Unable to connect to server.")
+    } finally {
+      setIsCalculating(false)
+    }
   }
 
   function updateItem(index: number, field: "name" | "price", value: string) {
@@ -107,8 +146,19 @@ function App() {
       return
     }
 
+    const name = personName.trim()
+
+    const personExists = receipt.people.some(
+      person => person.name.toLowerCase() === name.toLowerCase()
+    )
+
+    if (personExists) {
+      setErrorMessage("A person with that name already exists.")
+      return
+    }
+
     const newPerson: Person = {
-      name: personName.trim()
+      name: name
     }
 
     setReceipt({
@@ -117,6 +167,7 @@ function App() {
     })
 
     setPersonName("")
+    setErrorMessage("")
 
   }
 
@@ -163,9 +214,18 @@ function App() {
         }}
       />
 
-      <button onClick = {handleUpload}>
-        Upload
+      <button 
+        onClick = {handleUpload}
+        disabled = {isUploading}
+      >
+        {isUploading ? "Extracting..." : "Upload"}
       </button>
+
+      {errorMessage && (
+        <p className = "error-message">
+          {errorMessage}
+        </p>
+      )}
 
       {receipt && (
         <div className = "receipt-section">
@@ -276,8 +336,12 @@ function App() {
             </div>
           </div>
 
-          <button className = "primary-button" onClick = {handleCalculate}>
-            Calculate
+          <button 
+            className = "primary-button" 
+            onClick = {handleCalculate}
+            disabled = {isCalculating}
+          >
+            {isCalculating ? "Calculating..." : "Calculate"}
           </button>
 
         </div>
@@ -288,8 +352,8 @@ function App() {
           <h2>Split</h2>
 
           {Object.entries(splitResult).map(([name, amount]) => (
-            <div className = "split-row">
-              <p key = {name}>
+            <div className = "split-row" key = {name}>
+              <p>
                 {name}: ${amount.toFixed(2)}
               </p>
             </div>

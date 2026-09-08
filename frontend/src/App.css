@@ -113,3 +113,8 @@ label {
   margin-bottom: 10px;
   font-size: 1.05rem;
 }
+
+.error-message {
+  margin-top: 10px;
+  color: #b00020
+}
