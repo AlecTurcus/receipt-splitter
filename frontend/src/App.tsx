@@ -2,6 +2,7 @@ import './App.css'
 import { useState } from 'react'
 import type { Person, Receipt, SplitResult } from './types'
 
+const API_URL = import.meta.env.VITE_API_URL
 
 function App() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
@@ -29,7 +30,7 @@ function App() {
     setIsUploading(true)
     try {
       const response = await fetch(
-        "http://127.0.0.1:8000/receipts/extract",
+        `${API_URL}/receipts/extract`,
         {
           method: "POST",
           body: formData
@@ -76,7 +77,7 @@ function App() {
     setIsCalculating(true)
     try {
       const response = await fetch(
-        "http://127.0.0.1:8000/receipts/calculate",
+        `${API_URL}/receipts/calculate`,
          {
           method: "POST",
           headers: {

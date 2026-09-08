@@ -3,13 +3,18 @@ from .extraction import extract_receipt, extracted_to_receipt
 from .models import Receipt
 from .calculations import calculate_bill
 from fastapi.middleware.cors import CORSMiddleware
+import os
+from dotenv import load_dotenv
 
+MAX_FILE_SIZE = 10 * 1024 * 1024
+
+load_dotenv()
+frontend_url = os.getenv("FRONTEND_URL")
 
 app = FastAPI()
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins = ["http://localhost:5173"],
+    allow_origins = [frontend_url],
     allow_credentials = True,
     allow_methods = ["*"],
     allow_headers = ["*"]
@@ -29,6 +34,9 @@ async def extract_receipt_endpoint(file: UploadFile = File(...)):
         raise HTTPException(415, "Unsupported file type")
     
     image_bytes = await file.read()
+
+    if len(image_bytes) > MAX_FILE_SIZE:
+        raise HTTPException(413, "File too large")
 
     try:
         extracted = extract_receipt(image_bytes, file.content_type)
