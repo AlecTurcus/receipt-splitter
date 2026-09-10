@@ -13,9 +13,11 @@ function App() {
   const [isUploading, setIsUploading] = useState(false)
   const [isCalculating, setIsCalculating] = useState(false)
 
-  const subtotalCents = receipt ? receipt.items.reduce((sum, item) => {
-      return sum + toCents(item.price)
-    }, 0) : 0
+  const subtotalCents = receipt
+    ? receipt.items.reduce((sum, item) => {
+        return sum + (toCents(item.price) * (item.quantity === "" ? 0 : item.quantity))
+      }, 0)
+    : 0
   
   const totalCents = receipt ? subtotalCents + toCents(receipt.tax) + toCents(receipt.tip) : 0
 
@@ -56,6 +58,15 @@ function App() {
 
   async function handleCalculate() {
     if (!receipt) {
+      return
+    }
+
+    const hasInvalidQuantity = receipt.items.some(
+      item => item.quantity === "" || item.quantity <= 0
+    )
+
+    if (hasInvalidQuantity) {
+      setErrorMessage("Every item must have a quantity > 0.")
       return
     }
   
@@ -113,6 +124,26 @@ function App() {
     updatedItems[index] = {
       ...updatedItems[index],
       [field]: value
+    }
+
+    setReceipt({
+      ...receipt,
+      items: updatedItems
+    })
+
+    setSplitResult(null)
+  }
+
+  function updateQuantity(index: number, quantity: number | "") {
+    if (!receipt) {
+      return
+    }
+
+    const updatedItems = [...receipt.items]
+
+    updatedItems[index] = {
+      ...updatedItems[index],
+      quantity: quantity
     }
 
     setReceipt({
@@ -204,6 +235,43 @@ function App() {
     setSplitResult(null)
   }
 
+  function addItem() {
+    if (!receipt) {
+      return
+    }
+
+    const newItem = {
+      name: "",
+      price: "",
+      quantity: 1,
+      shared_by: []
+    }
+
+    setReceipt({
+      ...receipt,
+      items: [...receipt.items, newItem]
+    })
+
+    setSplitResult(null)
+  }
+
+  function removeItem(index: number) {
+    if (!receipt) {
+      return
+    }
+
+    const updatedItems = receipt.items.filter(
+      (_, itemIndex) => itemIndex !== index
+    )
+
+    setReceipt({
+      ...receipt,
+      items: updatedItems
+    })
+
+    setSplitResult(null)
+  }
+
   return (
     <div className = "app">
       <h1>Receipt Splitter</h1>
@@ -237,30 +305,55 @@ function App() {
         <div className = "receipt-section">
           <h2>Receipt</h2>
           <div className = "item-header">
+            <span>Qty</span>
             <span>Item</span>
-            <span>Price</span>
+            <span>Unit Price</span>
           </div>
           {receipt.items.map((item, index) => (
             <div className = "item" key = {index}>
-              <div className = "item-fields">
-                <input
-                  value = {item.name}
-                  onChange = {(event) => {
-                    updateItem(index, "name", event.target.value)
-                  }}
-                />
+              <div className = "item-main">
+                <div className = "item-fields">
+                  <input
+                    type = "text"
+                    inputMode = 'numeric'
+                    value = {item.quantity}
+                    onChange = {(event) =>{
+                      const value = event.target.value
 
-                <input
-                  type = "text"
-                  value = {item.price}
-                  onChange = {(event) => {
-                    const value = event.target.value
 
-                    if (/^\d*(\.\d{0,2})?$/.test(value)) {
-                      updateItem(index, "price", event.target.value)
-                    }
-                  }}
-                />
+                      if (/^\d*$/.test(value)) {
+                        updateQuantity(index, value === "" ? "" : Number(value))
+                      }
+                    }}
+                  />
+
+                  <input
+                    value = {item.name}
+                    onChange = {(event) => {
+                      updateItem(index, "name", event.target.value)
+                    }}
+                  />
+
+                  <input
+                    type = "text"
+                    inputMode = 'numeric'
+                    value = {item.price}
+                    onChange = {(event) => {
+                      const value = event.target.value
+
+                      if (/^\d*(\.\d{0,2})?$/.test(value)) {
+                        updateItem(index, "price", event.target.value)
+                      }
+                    }}
+                  />
+                </div>
+                
+                <button 
+                  className = "remove-button" 
+                  onClick = {() => removeItem(index)}
+                >
+                  Remove
+                </button>
               </div>
               <div className = "item-people">
                 {receipt.people.map((person) => {
@@ -281,9 +374,14 @@ function App() {
                   )
                 })}
               </div>
-
             </div>
           ))}
+          <button 
+            className = "add-button"
+            onClick = {addItem}
+          >
+            Add Item
+          </button>
           <div className = "total-row">
             <label>Subtotal:</label>
             <input value = {fromCents(subtotalCents)} readOnly/>

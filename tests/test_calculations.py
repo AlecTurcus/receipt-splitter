@@ -1,7 +1,8 @@
 from receipt_splitter.models import Receipt, Item, Person
-from receipt_splitter.calculations import calculate_bill, split_item
+from receipt_splitter.calculations import calculate_bill, split_item, calculate_subtotal
 
 from decimal import Decimal
+from fractions import Fraction
 import pytest
 
 def test_basic_bill():
@@ -321,4 +322,27 @@ def test_big_bill():
                 "Job": Decimal("19.35")
             }
 
-    
+
+def test_quantity_effects_subtotal():
+    item = Item(name="A", price="20.00", quantity=3)
+
+    receipt = Receipt(
+        items = [item],
+        subtotal = "60.00",
+        tax = "0.00",
+        tip = "0.00",
+        total = "60.00"
+    )
+
+    assert calculate_subtotal(receipt) == Decimal("60.00")
+
+def test_quantity_effects_item_split():
+    alice = Person(name="Alice")
+    bob = Person(name="Bob")
+
+    item = Item(name="A", price="20.00", quantity=3, shared_by=[alice, bob])
+
+    result = split_item(item)
+
+    assert result["Alice"] == Fraction(3000, 1)
+    assert result["Bob"] == Fraction(3000, 1)

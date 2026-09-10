@@ -23,10 +23,19 @@ def extract_receipt(image_bytes: bytes, mime_type: str) -> ExtractedReceipt:
     prompt = """Extract the receipt information from the image.
 
     Rules:
-    - Extract each purchased item and its line price.
+    - Extract each purchased item.
+    - For each item, extract the quantity explicitly shown on the receipt.
+    - If no quantity is explicitly shown, or the quantity cannot be read, use 1.
+    - Do not treat numbers that are part of an item name or description as the quantity.
+    - For each item, extract the explicitly shown per-unit price as unit_price.
+    - For each item, extract the total amount charged for the entire item line as line_total.
+    - line_total must represent the total for the whole line, not the per-unit price.
+    - If unit_price or line_total is not explicitly shown, reutrn "0.00" for that field.
+    - Do not calculate unit_price from line_total or line_total from unit_price.
+    - Do not combine separate repeated item lines into one item.
     - Extract the subtotal, tax, tip, and total.
     - For all monetary values, return only the numeric decimal value.
-    - If a monetary value cannot be read or is not present, return "0.00" for that value
+    - If a monetary value cannot be read or is not present, return "0.00" for the value.
     - Do not calculate or infer missing monetary values.
     - Do not include subtotal, tax, tip, or total as purchased items.
     """
@@ -79,10 +88,19 @@ def extracted_to_receipt(extracted: ExtractedReceipt) -> Receipt:
     items = []
 
     for item in extracted.items:
+        line_total = parse_money(item.line_total)
+        unit_price = parse_money(item.unit_price)
+    
+        if line_total != Decimal("0.00"):
+            price = line_total / item.quantity
+        else:
+            price = unit_price
+
         items.append(
             Item(
                 name = item.name,
-                price = parse_money(item.price)
+                price = price,
+                quantity = item.quantity
             )
         )
     return Receipt(

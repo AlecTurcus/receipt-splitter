@@ -12,7 +12,7 @@ def calculate_subtotal(receipt: Receipt) -> Decimal:
     Returns:
         Decimal: Calculated subtotal of items in receipt
     """
-    return sum(item.price for item in receipt.items)
+    return sum(item.price * item.quantity for item in receipt.items)
 
 def validate_subtotal(receipt: Receipt) -> bool:
     """Check whether receipt subtotal matches sum of item prices
@@ -37,7 +37,7 @@ def split_item(item: Item) -> dict[str, Fraction]:
     if not item.shared_by:
         raise ValueError("No person attached to item")
 
-    cents = int(item.price * 100)
+    cents = int(item.price * item.quantity * 100)
 
     split = {}
 

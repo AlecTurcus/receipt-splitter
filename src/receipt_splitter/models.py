@@ -8,6 +8,7 @@ class Person(BaseModel):
 class Item(BaseModel) :
     name: str
     price: Decimal
+    quantity: int = Field(default = 1, ge = 1)
     shared_by: list[Person] = Field(default_factory = list)
 
 class Receipt(BaseModel):
@@ -22,7 +23,9 @@ class Receipt(BaseModel):
 
 class ExtractedItem(BaseModel):
     name: str
-    price: str
+    unit_price: str
+    line_total: str
+    quantity: int = Field(default = 1, ge = 1)
 
 class ExtractedReceipt(BaseModel):
     items: list[ExtractedItem]

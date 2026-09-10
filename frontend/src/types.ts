@@ -5,6 +5,7 @@ export type Person = {
 export type Item = {
   name: string
   price: string
+  quantity: number | ""
   shared_by: Person[]
 }
 

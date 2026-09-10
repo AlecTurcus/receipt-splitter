@@ -42,9 +42,14 @@ label {
 }
 
 .item-fields {
-  display: flex;
+  display: grid;
+  grid-template-columns: 60px 210px 160px;
   gap: 12px;
-  margin-bottom: 8px;
+}
+
+.item-fields input {
+  width: 100%;
+  min-width: 0;
 }
 
 .item-people {
@@ -67,9 +72,15 @@ label {
   margin-bottom: 12px;
 }
 
+.item-main {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .item-header {
   display: grid;
-  grid-template-columns: 210px 210px;
+  grid-template-columns:60px 210px 160px;
   gap: 12px;
   margin-bottom: 8px;
   font-weight: bold;
@@ -117,4 +128,29 @@ label {
 .error-message {
   margin-top: 10px;
   color: #b00020
+}
+
+.remove-button {
+  background: #fff0f0;
+  color: #a00000;
+  border: 1px solid #e0b4b4;
+}
+
+.remove-button:hover {
+  background: #ffe2e2
+}
+
+.add-button {
+  margin-bottom: 18px;
+}
+
+@media (max-width: 600px) {
+  .item-main, .item-fields {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .item-fields input {
+    width: 100%;
+  }
 }

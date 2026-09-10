@@ -92,7 +92,7 @@ def test_extract_receipt_success(monkeypatch):
     def fake_extract_receipt(image_bytes, mime_type):
         return ExtractedReceipt(
             items=[
-                ExtractedItem(name="Burger", price="10.00")
+                ExtractedItem(name="Burger", line_total="10.00", unit_price = "10.00")
             ],
             subtotal="10.00",
             tax="1.00",
@@ -115,6 +115,7 @@ def test_extract_receipt_success(monkeypatch):
             {
                 "name": "Burger",
                 "price": "10.00",
+                "quantity": 1,
                 "shared_by": []
             }
         ],
