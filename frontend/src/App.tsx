@@ -61,6 +61,15 @@ function App() {
       return
     }
 
+    const hasMissingPrice = receipt.items.some(
+      item => item.price ===""
+    )
+
+    if (hasMissingPrice) {
+      setErrorMessage("Every item must have a price.")
+      return
+    }
+
     const hasInvalidQuantity = receipt.items.some(
       item => item.quantity === "" || item.quantity <= 0
     )
