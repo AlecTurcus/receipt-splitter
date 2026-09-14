@@ -93,12 +93,6 @@ label {
   margin: 12px 0 16px;
 }
 
-.person {
-  background: #eeeeee;
-  padding: 6px 10px;
-  border-radius: 999px
-}
-
 .primary-button {
   background: #222;
   color: white;
@@ -142,6 +136,26 @@ label {
 
 .add-button {
   margin-bottom: 18px;
+}
+
+.person {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #eeeeee;
+  padding: 6px 10px;
+  border-radius: 999px;
+}
+
+.remove-person-button {
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  background: none;
+  border: none;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
 }
 
 @media (max-width: 600px) {

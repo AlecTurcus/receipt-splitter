@@ -216,6 +216,31 @@ function App() {
     setSplitResult(null)
   }
 
+  function removePerson(name: string) {
+    if (!receipt) {
+      return
+    }
+
+    const updatedPeople = receipt.people.filter(
+      person => person.name !== name
+    )
+
+    const updatedItems = receipt.items.map(item => ({
+      ...item,
+      shared_by: item.shared_by.filter(
+        person => person.name !== name
+      )
+    }))
+
+    setReceipt({
+      ...receipt,
+      people: updatedPeople,
+      items: updatedItems
+    })
+
+    setSplitResult(null)
+  }
+
   function togglePersonForItem(itemIndex: number, person: Person){
     if (!receipt) {
       return
@@ -445,8 +470,12 @@ function App() {
               Add Person
             </button>
             <div className = "people-list">
-              {receipt.people.map((person, index) => (
-                <span className = "person" key = {index}>{person.name} </span>
+              {receipt.people.map((person) => (
+                <span className = "person" key = {person.name}>{person.name}
+                <button className = "remove-person-button" onClick={() => removePerson(person.name)}>
+                  ✕
+                </button>
+                </span>
               ))}
             </div>
           </div>
