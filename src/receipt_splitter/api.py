@@ -60,3 +60,8 @@ def calculate_receipt(receipt: Receipt):
     except ValueError as error:
         raise HTTPException(400, str(error))
 
+
+@app.get("/wake")
+def wake():
+    return {"server": "I'm awake"}
+

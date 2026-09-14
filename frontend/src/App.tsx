@@ -1,5 +1,5 @@
 import './App.css'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import type { Person, Receipt, SplitResult } from './types'
 
 const API_URL = import.meta.env.VITE_API_URL
@@ -12,6 +12,11 @@ function App() {
   const [errorMessage, setErrorMessage] = useState("")
   const [isUploading, setIsUploading] = useState(false)
   const [isCalculating, setIsCalculating] = useState(false)
+
+  //Wake backend server when app loads to reduce cold start wait time
+  useEffect(() => {
+    fetch(`${API_URL}/wake`).catch(() => {})
+  }, [])
 
   const subtotalCents = receipt
     ? receipt.items.reduce((sum, item) => {
@@ -310,6 +315,7 @@ function App() {
     <div className = "app">
       <h1>Receipt Splitter</h1>
       <p>Upload a receipt.</p>
+      <p className = "startup">Note: First receipt upload may take longer while server is starting up.</p>
       <input 
         type = "file"
         accept = "image/*"
