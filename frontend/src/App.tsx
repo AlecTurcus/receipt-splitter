@@ -399,6 +399,7 @@ function App() {
             <label>Tax:</label>
             <input
                 type = "text"
+                inputMode = 'numeric'
                 value = {receipt.tax}
                 onChange = {(event) => {
                   const value = event.target.value
@@ -414,6 +415,7 @@ function App() {
             <label>Tip:</label>
             <input
                 type = "text"
+                inputMode = 'numeric'
                 value = {receipt.tip}
                 onChange = {(event) => {
                   const value = event.target.value
