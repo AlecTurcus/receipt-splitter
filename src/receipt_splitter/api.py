@@ -30,6 +30,7 @@ async def extract_receipt_endpoint(file: UploadFile = File(...)):
     Returns:
         Receipt: Receipt containing extracted item and monetary values
     """
+
     if file.content_type is None or not file.content_type.startswith("image/"):
         raise HTTPException(415, "Unsupported file type")
     
@@ -63,5 +64,6 @@ def calculate_receipt(receipt: Receipt):
 
 @app.get("/wake")
 def wake():
+    """Calls backend server when web app loads"""
     return {"server": "I'm awake"}
 
