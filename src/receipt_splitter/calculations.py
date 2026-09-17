@@ -1,10 +1,11 @@
-from .models import Receipt, Item, Person
+from .models import Receipt, Item
+
 from decimal import Decimal
 from fractions import Fraction
 
 
 def calculate_subtotal(receipt: Receipt) -> Decimal:
-    """Calculate subtotal by summing prices of all items
+    """Calculate subtotal by summing each item's price multiplied by its quantity
     
     Args: 
         receipt (Receipt): Receipt containing items to total
@@ -13,6 +14,7 @@ def calculate_subtotal(receipt: Receipt) -> Decimal:
         Decimal: Calculated subtotal of items in receipt
     """
     return sum(item.price * item.quantity for item in receipt.items)
+
 
 def validate_subtotal(receipt: Receipt) -> bool:
     """Check whether receipt subtotal matches sum of item prices
@@ -25,6 +27,7 @@ def validate_subtotal(receipt: Receipt) -> bool:
     """
     return receipt.subtotal == calculate_subtotal(receipt)
 
+
 def split_item(item: Item) -> dict[str, Fraction]:
     """Calculate each person's exact fractional share of an item in cents
     
@@ -32,7 +35,7 @@ def split_item(item: Item) -> dict[str, Fraction]:
         item (Item): Item containing price and people sharing item
 
     Returns:
-        dict[str, Fraction]: Dictionary with a person's name as key and persons fractional share as value
+        dict[str, Fraction]: Dictionary with a person's name as key and person's fractional share as value
     """
     if not item.shared_by:
         raise ValueError("No person attached to item")
@@ -42,10 +45,10 @@ def split_item(item: Item) -> dict[str, Fraction]:
     split = {}
 
     for person in item.shared_by:
-
         split[person.name] = Fraction(cents, len(item.shared_by))
 
     return split
+
 
 def calculate_person_subtotal(receipt: Receipt) -> dict[str, int]:
     """Calculate and fairly round each person's share of receipt subtotal
@@ -54,14 +57,12 @@ def calculate_person_subtotal(receipt: Receipt) -> dict[str, int]:
         receipt (Receipt): Receipt containing people splitting receipt and items
 
     Returns:
-        dict[str, int]: Dictionary with a person's name as key and persons subtotal in cents as value
+        dict[str, int]: Dictionary with a person's name as key and person's subtotal in cents as value
     """
-    
     subtotals = {person.name: 0 for person in receipt.people}
+
     for item in receipt.items:
-
         split = split_item(item)
-
         for name in split:
             if name in subtotals:
                 subtotals[name] += split[name]
@@ -70,18 +71,20 @@ def calculate_person_subtotal(receipt: Receipt) -> dict[str, int]:
 
     return allocate_cents(subtotals, int(receipt.subtotal * 100))
 
+
 def allocate_cents(allocations: dict[str, Fraction], total_cents: int) -> dict[str, int]:
     """Convert fractional cent allocations into whole cents while preserving total
     
     Args:
-        allocations (dict[str, Fraction]): Dictonary with person's name as key and fractional split in cents for person
-        total_cents (int): Total number of sents to be split and allocated
+        allocations (dict[str, Fraction]): Dictionary with person's name as key and fractional split in cents for person
+        total_cents (int): Total number of cents to be split and allocated
 
     Returns:
         dict[str, int]: Dictionary with person's name as key and whole cent allocations as value
     """
     allocated = {}
     fractionals = {}
+
     for name in allocations:
         allocated[name], fractionals[name] = divmod(allocations[name], 1)
 
@@ -99,6 +102,7 @@ def allocate_cents(allocations: dict[str, Fraction], total_cents: int) -> dict[s
 
     return allocated
 
+
 def calculate_person_tax(receipt: Receipt, subtotals: dict[str, int]) -> dict[str, int]:
     """Calculate proportional amount of tax a person must pay
     
@@ -111,6 +115,7 @@ def calculate_person_tax(receipt: Receipt, subtotals: dict[str, int]) -> dict[st
     """
     if receipt.tax == 0:
         return {name: 0 for name in subtotals}
+    
     tax_allocations = {}
     subtotal_cents = int(receipt.subtotal * 100)
     tax_cents = int(receipt.tax * 100)
@@ -121,8 +126,8 @@ def calculate_person_tax(receipt: Receipt, subtotals: dict[str, int]) -> dict[st
     for name in subtotals:
         tax_allocations[name] = (Fraction(subtotals[name], subtotal_cents) * tax_cents)
 
-    
     return allocate_cents(tax_allocations, tax_cents)
+
 
 def calculate_person_tip(receipt: Receipt, subtotals: dict[str, int]) -> dict[str, int]:
     """Calculate proportional amount of tip a person must pay
@@ -147,7 +152,6 @@ def calculate_person_tip(receipt: Receipt, subtotals: dict[str, int]) -> dict[st
     for name in subtotals:
         tip_allocations[name] = (Fraction(subtotals[name], subtotal_cents) * tip_cents)
 
-    
     return allocate_cents(tip_allocations, tip_cents)
 
 
@@ -159,14 +163,16 @@ def calculate_final_totals(subtotals: dict[str, int], tax_allocations: dict[str,
         tax_allocations (dict[str, int]): Dictionary with person's name as key and proportional amount of tax for person in cents
         tip_allocations (dict[str, int]): Dictionary with person's name as key and proportional amount of tip for person in cents
     
-    Return:
+    Returns:
         dict[str, Decimal]: Dictionary with person's name as key and final total to be paid per person in dollar value
     """
     totals = {}
+    
     for name in subtotals:
         totals[name] = Decimal(subtotals[name] + tax_allocations[name] + tip_allocations[name]) / Decimal("100")
 
     return totals
+
 
 def calculate_bill(receipt: Receipt) -> dict[str, Decimal]:
     """Calculates final amount owed for each person in dollars
@@ -177,7 +183,6 @@ def calculate_bill(receipt: Receipt) -> dict[str, Decimal]:
     Returns:
         dict[str, Decimal]: Dictionary with person's name as key and final total to be paid per person in dollar value
     """
-
     if not validate_subtotal(receipt):
         raise ValueError("Receipt subtotal does not match summed item subtotal")
 

@@ -3,7 +3,9 @@ from receipt_splitter.calculations import calculate_bill, split_item, calculate_
 
 from decimal import Decimal
 from fractions import Fraction
+
 import pytest
+
 
 def test_basic_bill():
     alice = Person(name="Alice")
@@ -13,12 +15,12 @@ def test_basic_bill():
     item2 = Item(name="izza", price="30.00", shared_by=[bob])
 
     receipt = Receipt(
-        items = [item1, item2],
-        subtotal = "50.00",
-        tax = "5.00",
-        tip = "10.00",
-        total = "65.00",
-        people = [alice, bob]
+        items=[item1, item2],
+        subtotal="50.00",
+        tax="5.00",
+        tip="10.00",
+        total="65.00",
+        people=[alice, bob]
     )
 
     result = calculate_bill(receipt)
@@ -28,6 +30,7 @@ def test_basic_bill():
         "Bob": Decimal("39.00")
     }
 
+
 def test_even_split():
     alice = Person(name="Alice")
     bob = Person(name="Bob")
@@ -35,12 +38,12 @@ def test_even_split():
     item1 = Item(name="Pizza", price="20.00", shared_by=[alice, bob])
 
     receipt = Receipt(
-        items = [item1],
-        subtotal = "20.00",
-        tax = "0",
-        tip = "0",
-        total = "20",
-        people = [alice, bob]
+        items=[item1],
+        subtotal="20.00",
+        tax="0",
+        tip="0",
+        total="20",
+        people=[alice, bob]
     )
 
     result = calculate_bill(receipt)
@@ -50,6 +53,7 @@ def test_even_split():
         "Bob": Decimal("10.00")
     }
 
+
 def test_share_remainder():
     alice = Person(name="Alice")
     bob = Person(name="Bob")
@@ -58,17 +62,18 @@ def test_share_remainder():
     item1 = Item(name="Pizza", price="20.00", shared_by=[alice, bob, job])
 
     receipt = Receipt(
-        items = [item1],
-        subtotal = "20.00",
-        tax = "0",
-        tip = "0",
-        total = "20.00",
-        people = [alice, bob, job]
+        items=[item1],
+        subtotal="20.00",
+        tax="0",
+        tip="0",
+        total="20.00",
+        people=[alice, bob, job]
     )
 
     result = calculate_bill(receipt)
 
     assert sum(result.values()) == Decimal("20")
+
 
 def test_share_remainder_fairness():
     alice = Person(name="Alice")
@@ -79,12 +84,12 @@ def test_share_remainder_fairness():
     item2 = Item(name="Pizza", price="0.03", shared_by=[alice, job])
 
     receipt = Receipt(
-        items = [item1, item2],
-        subtotal = "20.03",
-        tax = "0",
-        tip = "0",
-        total = "20.03",
-        people = [alice, bob, job]
+        items=[item1, item2],
+        subtotal="20.03",
+        tax="0",
+        tip="0",
+        total="20.03",
+        people=[alice, bob, job]
     )
 
     result = calculate_bill(receipt)
@@ -94,6 +99,7 @@ def test_share_remainder_fairness():
         "Bob": Decimal("6.67"),
         "Job": Decimal("6.68")
     }
+
 
 def test_tax_allocation():
     alice = Person(name="Alice")
@@ -105,21 +111,22 @@ def test_tax_allocation():
     item3 = Item(name="Pizza", price="10.00", shared_by=[job])
 
     receipt = Receipt(
-        items = [item1, item2, item3],
-        subtotal = "50.00",
-        tax = "3",
-        tip = "0",
-        total = "53",
-        people = [alice, bob, job]
+        items=[item1, item2, item3],
+        subtotal="50.00",
+        tax="3",
+        tip="0",
+        total="53",
+        people=[alice, bob, job]
     )
 
     result = calculate_bill(receipt)
 
     assert result == {
-            "Alice": Decimal("24.38"),
-            "Bob": Decimal("18.02"),
-            "Job": Decimal("10.60")
-        }
+        "Alice": Decimal("24.38"),
+        "Bob": Decimal("18.02"),
+        "Job": Decimal("10.60")
+    }
+
 
 def test_tip_allocation():
     alice = Person(name="Alice")
@@ -131,21 +138,22 @@ def test_tip_allocation():
     item3 = Item(name="Pizza", price="10.00", shared_by=[job])
 
     receipt = Receipt(
-        items = [item1, item2, item3],
-        subtotal = "50.00",
-        tax = "0",
-        tip = "3",
-        total = "53",
-        people = [alice, bob, job]
+        items=[item1, item2, item3],
+        subtotal="50.00",
+        tax="0",
+        tip="3",
+        total="53",
+        people=[alice, bob, job]
     )
 
     result = calculate_bill(receipt)
 
     assert result == {
-            "Alice": Decimal("24.38"),
-            "Bob": Decimal("18.02"),
-            "Job": Decimal("10.60")
-        }
+        "Alice": Decimal("24.38"),
+        "Bob": Decimal("18.02"),
+        "Job": Decimal("10.60")
+    }
+
 
 def test_tip_tax():
     alice = Person(name="Alice")
@@ -157,21 +165,21 @@ def test_tip_tax():
     item3 = Item(name="Pizza", price="10.00", shared_by=[job])
 
     receipt = Receipt(
-        items = [item1, item2, item3],
-        subtotal = "50.00",
-        tax = "3",
-        tip = "3",
-        total = "56",
-        people = [alice, bob, job]
+        items=[item1, item2, item3],
+        subtotal="50.00",
+        tax="3",
+        tip="3",
+        total="56",
+        people=[alice, bob, job]
     )
 
     result = calculate_bill(receipt)
 
     assert result == {
-            "Alice": Decimal("25.76"),
-            "Bob": Decimal("19.04"),
-            "Job": Decimal("11.20")
-        }
+        "Alice": Decimal("25.76"),
+        "Bob": Decimal("19.04"),
+        "Job": Decimal("11.20")
+    }
 
 
 def test_person_no_item():
@@ -183,29 +191,29 @@ def test_person_no_item():
     item2 = Item(name="Pzza", price="17.00", shared_by=[bob])
 
     receipt = Receipt(
-        items = [item1, item2],
-        subtotal = "40.00",
-        tax = "0",
-        tip = "0",
-        total = "40",
-        people = [alice, bob, job]
+        items=[item1, item2],
+        subtotal="40.00",
+        tax="0",
+        tip="0",
+        total="40",
+        people=[alice, bob, job]
     )
 
     result = calculate_bill(receipt)
 
     assert result == {
-            "Alice": Decimal("23"),
-            "Bob": Decimal("17"),
-            "Job": Decimal("0.00")
-        }
+        "Alice": Decimal("23"),
+        "Bob": Decimal("17"),
+        "Job": Decimal("0.00")
+    }
 
 
 def test_empty_shared_by():
-
     item1 = Item(name="izza", price="23.00", shared_by=[])
-    
+
     with pytest.raises(ValueError, match="No person attached to item"):
         split_item(item1)
+
 
 def test_invalid_receipt_subtotal():
     alice = Person(name="Alice")
@@ -216,16 +224,17 @@ def test_invalid_receipt_subtotal():
     item2 = Item(name="Pzza", price="17.00", shared_by=[bob])
 
     receipt = Receipt(
-        items = [item1, item2],
-        subtotal = "30.00",
-        tax = "0",
-        tip = "0",
-        total = "40",
-        people = [alice, bob, job]
+        items=[item1, item2],
+        subtotal="30.00",
+        tax="0",
+        tip="0",
+        total="40",
+        people=[alice, bob, job]
     )
 
     with pytest.raises(ValueError, match="Receipt subtotal does not match summed item subtotal"):
         calculate_bill(receipt)
+
 
 def test_invalid_total():
     alice = Person(name="Alice")
@@ -236,12 +245,12 @@ def test_invalid_total():
     item2 = Item(name="Pzza", price="17.00", shared_by=[bob])
 
     receipt = Receipt(
-        items = [item1, item2],
-        subtotal = "40.00",
-        tax = "0",
-        tip = "0",
-        total = "30",
-        people = [alice, bob, job]
+        items=[item1, item2],
+        subtotal="40.00",
+        tax="0",
+        tip="0",
+        total="30",
+        people=[alice, bob, job]
     )
 
     with pytest.raises(ValueError, match="Split total does not match receipt total"):
@@ -258,18 +267,17 @@ def test_tip_tax_zero_subtotal():
     item3 = Item(name="Pizza", price="0", shared_by=[job])
 
     receipt = Receipt(
-        items = [item1, item2, item3],
-        subtotal = "0",
-        tax = "3",
-        tip = "3",
-        total = "6",
-        people = [alice, bob, job]
+        items=[item1, item2, item3],
+        subtotal="0",
+        tax="3",
+        tip="3",
+        total="6",
+        people=[alice, bob, job]
     )
-
-    
 
     with pytest.raises(ValueError, match="Zero subtotal"):
         calculate_bill(receipt)
+
 
 def test_one_person():
     alice = Person(name="Alice")
@@ -279,25 +287,25 @@ def test_one_person():
     item3 = Item(name="Pizza", price="11", shared_by=[alice])
 
     receipt = Receipt(
-        items = [item1, item2, item3],
-        subtotal = "21.33",
-        tax = "3",
-        tip = "3",
-        total = "27.33",
-        people = [alice]
+        items=[item1, item2, item3],
+        subtotal="21.33",
+        tax="3",
+        tip="3",
+        total="27.33",
+        people=[alice]
     )
 
     result = calculate_bill(receipt)
 
     assert result == {
-                "Alice": Decimal("27.33")
-            }
+        "Alice": Decimal("27.33")
+    }
 
 
 def test_big_bill():
     alice = Person(name="Alice")
     bob = Person(name="Bob")
-    job = Person(name = "Job")
+    job = Person(name="Job")
 
     item1 = Item(name="izza", price="20", shared_by=[alice, bob])
     item2 = Item(name="Pzza", price="17", shared_by=[bob])
@@ -306,35 +314,36 @@ def test_big_bill():
     item5 = Item(name="Pizza", price="8.00", shared_by=[job])
 
     receipt = Receipt(
-        items = [item1, item2, item3, item4, item5],
-        subtotal = "67.00",
-        tax = "4.01",
-        tip = "6.03",
-        total = "77.04",
-        people = [alice, bob, job]
+        items=[item1, item2, item3, item4, item5],
+        subtotal="67.00",
+        tax="4.01",
+        tip="6.03",
+        total="77.04",
+        people=[alice, bob, job]
     )
 
     result = calculate_bill(receipt)
 
     assert result == {
-                "Alice": Decimal("21.67"),
-                "Bob": Decimal("36.02"),
-                "Job": Decimal("19.35")
-            }
+        "Alice": Decimal("21.67"),
+        "Bob": Decimal("36.02"),
+        "Job": Decimal("19.35")
+    }
 
 
 def test_quantity_effects_subtotal():
     item = Item(name="A", price="20.00", quantity=3)
 
     receipt = Receipt(
-        items = [item],
-        subtotal = "60.00",
-        tax = "0.00",
-        tip = "0.00",
-        total = "60.00"
+        items=[item],
+        subtotal="60.00",
+        tax="0.00",
+        tip="0.00",
+        total="60.00"
     )
 
     assert calculate_subtotal(receipt) == Decimal("60.00")
+
 
 def test_quantity_effects_item_split():
     alice = Person(name="Alice")

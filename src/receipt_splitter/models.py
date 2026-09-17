@@ -1,23 +1,27 @@
 from pydantic import BaseModel, Field
+
 from decimal import Decimal
 
 
 class Person(BaseModel):
     name: str
 
-class Item(BaseModel) :
+
+class Item(BaseModel):
     name: str
     price: Decimal
-    quantity: int = Field(default = 1, ge = 1)
-    shared_by: list[Person] = Field(default_factory = list)
+    quantity: int = Field(default=1, ge=1)
+    shared_by: list[Person] = Field(default_factory=list)
+
 
 class Receipt(BaseModel):
-    items: list[Item] = Field(default_factory = list)
+    items: list[Item] = Field(default_factory=list)
     subtotal: Decimal
     tax: Decimal
     tip: Decimal
     total: Decimal
-    people: list[Person] = Field(default_factory = list)
+    people: list[Person] = Field(default_factory=list)
+
 
 # Models for AI receipt extraction layer
 
@@ -25,7 +29,8 @@ class ExtractedItem(BaseModel):
     name: str
     unit_price: str
     line_total: str
-    quantity: int = Field(default = 1, ge = 1)
+    quantity: int = Field(default=1, ge=1)
+
 
 class ExtractedReceipt(BaseModel):
     items: list[ExtractedItem]

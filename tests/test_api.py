@@ -1,4 +1,5 @@
 from fastapi.testclient import TestClient
+
 from receipt_splitter.api import app
 import receipt_splitter.api as api_module
 from receipt_splitter.models import ExtractedReceipt, ExtractedItem
@@ -34,7 +35,7 @@ def test_calculate_receipt_endpoint():
         ]
     }
 
-    response = client.post("/receipts/calculate", json = receipt)
+    response = client.post("/receipts/calculate", json=receipt)
 
     assert response.status_code == 200
 
@@ -42,6 +43,7 @@ def test_calculate_receipt_endpoint():
         "Alice": 26.0,
         "Bob": 39.0
     }
+
 
 def test_calculate_receipt_invalid_endpoint():
     receipt = {
@@ -71,9 +73,10 @@ def test_calculate_receipt_invalid_endpoint():
         ]
     }
 
-    response = client.post("/receipts/calculate", json = receipt)
+    response = client.post("/receipts/calculate", json=receipt)
 
     assert response.status_code == 400
+
 
 def test_extract_receipt_invalid_file_type():
     response = client.post(
@@ -88,11 +91,16 @@ def test_extract_receipt_invalid_file_type():
         "detail": "Unsupported file type"
     }
 
+
 def test_extract_receipt_success(monkeypatch):
     def fake_extract_receipt(image_bytes, mime_type):
         return ExtractedReceipt(
             items=[
-                ExtractedItem(name="Burger", line_total="10.00", unit_price = "10.00")
+                ExtractedItem(
+                    name="Burger",
+                    line_total="10.00",
+                    unit_price="10.00"
+                )
             ],
             subtotal="10.00",
             tax="1.00",
@@ -103,11 +111,11 @@ def test_extract_receipt_success(monkeypatch):
     monkeypatch.setattr(api_module, "extract_receipt", fake_extract_receipt)
 
     response = client.post(
-            "/receipts/extract",
-            files={
-                "file": ("receipt.jpg", b"receipt image", "image/jpg")
-            }
-        )
+        "/receipts/extract",
+        files={
+            "file": ("receipt.jpg", b"receipt image", "image/jpg")
+        }
+    )
 
     assert response.status_code == 200
     assert response.json() == {
@@ -124,5 +132,5 @@ def test_extract_receipt_success(monkeypatch):
         "tip": "0.00",
         "total": "11.00",
         "people": []
-}
+    }
     

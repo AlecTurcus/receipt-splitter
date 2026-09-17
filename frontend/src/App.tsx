@@ -45,7 +45,7 @@ function App() {
       )
     
 
-      if (!response.ok){
+      if (!response.ok) {
           const errorData = await response.json()
           setErrorMessage(errorData.detail || "Unable to extract receipt.")
           return
@@ -67,7 +67,7 @@ function App() {
     }
 
     const hasMissingPrice = receipt.items.some(
-      item => item.price ===""
+      item => item.price === ""
     )
 
     if (hasMissingPrice) {
@@ -112,7 +112,7 @@ function App() {
           }
         )
 
-      if (!response.ok){
+      if (!response.ok) {
         const errorData = await response.json()
         setErrorMessage(errorData.detail || "Unable to calculate receipt.")
         return
@@ -246,7 +246,7 @@ function App() {
     setSplitResult(null)
   }
 
-  function togglePersonForItem(itemIndex: number, person: Person){
+  function togglePersonForItem(itemIndex: number, person: Person) {
     if (!receipt) {
       return
     }
@@ -312,14 +312,14 @@ function App() {
   }
 
   return (
-    <div className = "app">
+    <div className="app">
       <h1>Receipt Splitter</h1>
       <p>Upload a receipt.</p>
-      <p className = "startup">Note: First receipt upload may take longer while server is starting up.</p>
+      <p className="startup">Note: First receipt upload may take longer while server is starting up.</p>
       <input 
-        type = "file"
-        accept = "image/*"
-        onChange = {(event) => {
+        type="file"
+        accept="image/*"
+        onChange={(event) => {
           const file = event.target.files?.[0]
 
           if (file) {
@@ -329,37 +329,36 @@ function App() {
       />
 
       <button 
-        onClick = {handleUpload}
-        disabled = {isUploading}
+        onClick={handleUpload}
+        disabled={isUploading}
       >
         {isUploading ? "Extracting..." : "Upload"}
       </button>
 
       {errorMessage && (
-        <p className = "error-message">
+        <p className="error-message">
           {errorMessage}
         </p>
       )}
 
       {receipt && (
-        <div className = "receipt-section">
+        <div className="receipt-section">
           <h2>Receipt</h2>
-          <div className = "item-header">
+          <div className="item-header">
             <span>Qty</span>
             <span>Item</span>
             <span>Unit Price</span>
           </div>
           {receipt.items.map((item, index) => (
-            <div className = "item" key = {index}>
-              <div className = "item-main">
-                <div className = "item-fields">
+            <div className="item" key={index}>
+              <div className="item-main">
+                <div className="item-fields">
                   <input
-                    type = "text"
-                    inputMode = 'numeric'
-                    value = {item.quantity}
-                    onChange = {(event) =>{
+                    type="text"
+                    inputMode="numeric"
+                    value={item.quantity}
+                    onChange={(event) => {
                       const value = event.target.value
-
 
                       if (/^\d*$/.test(value)) {
                         updateQuantity(index, value === "" ? "" : Number(value))
@@ -368,17 +367,17 @@ function App() {
                   />
 
                   <input
-                    value = {item.name}
-                    onChange = {(event) => {
+                    value={item.name}
+                    onChange={(event) => {
                       updateItem(index, "name", event.target.value)
                     }}
                   />
 
                   <input
-                    type = "text"
-                    inputMode = 'numeric'
-                    value = {item.price}
-                    onChange = {(event) => {
+                    type="text"
+                    inputMode="numeric"
+                    value={item.price}
+                    onChange={(event) => {
                       const value = event.target.value
 
                       if (/^\d*(\.\d{0,2})?$/.test(value)) {
@@ -389,22 +388,22 @@ function App() {
                 </div>
                 
                 <button 
-                  className = "remove-button" 
-                  onClick = {() => removeItem(index)}
+                  className="remove-button" 
+                  onClick={() => removeItem(index)}
                 >
                   Remove
                 </button>
               </div>
-              <div className = "item-people">
+              <div className="item-people">
                 {receipt.people.map((person) => {
                   const isChecked = item.shared_by.some(
                     assignedPerson => assignedPerson.name === person.name
                   )
                   return (
-                    <label key = {person.name}>
+                    <label key={person.name}>
                       <input
-                        type = "checkbox"
-                        checked = {isChecked}
+                        type="checkbox"
+                        checked={isChecked}
                         onChange={() => {
                           togglePersonForItem(index, person)
                         }}
@@ -417,22 +416,22 @@ function App() {
             </div>
           ))}
           <button 
-            className = "add-button"
-            onClick = {addItem}
+            className="add-button"
+            onClick={addItem}
           >
             Add Item
           </button>
-          <div className = "total-row">
+          <div className="total-row">
             <label>Subtotal:</label>
-            <input value = {fromCents(subtotalCents)} readOnly/>
+            <input value={fromCents(subtotalCents)} readOnly/>
           </div>
-          <div className = "total-row">
+          <div className="total-row">
             <label>Tax:</label>
             <input
-                type = "text"
-                inputMode = 'numeric'
-                value = {receipt.tax}
-                onChange = {(event) => {
+                type="text"
+                inputMode="numeric"
+                value={receipt.tax}
+                onChange={(event) => {
                   const value = event.target.value
 
                   if (/^(\d+(\.\d{0,2})?)?$/.test(value)) {
@@ -442,13 +441,13 @@ function App() {
                 }}
               />
           </div>
-          <div className = "total-row">
+          <div className="total-row">
             <label>Tip:</label>
             <input
-                type = "text"
-                inputMode = 'numeric'
-                value = {receipt.tip}
-                onChange = {(event) => {
+                type="text"
+                inputMode="numeric"
+                value={receipt.tip}
+                onChange={(event) => {
                   const value = event.target.value
 
                   if (/^(\d+(\.\d{0,2})?)?$/.test(value)) {
@@ -458,27 +457,27 @@ function App() {
                 }}
               />
           </div>
-          <div className = "total-row">
+          <div className="total-row">
             <label>Total:</label>
-            <input value = {fromCents(totalCents)} readOnly/>
+            <input value={fromCents(totalCents)} readOnly/>
           </div>
           <div>
             <h3>People</h3>
 
             <input
-              value = {personName}
-              onChange = {(event) => {
+              value={personName}
+              onChange={(event) => {
                 setPersonName(event.target.value)
               }}
-              placeholder = "Add name"
+              placeholder="Add name"
             />
-            <button onClick = {addPerson}>
+            <button onClick={addPerson}>
               Add Person
             </button>
-            <div className = "people-list">
+            <div className="people-list">
               {receipt.people.map((person) => (
-                <span className = "person" key = {person.name}>{person.name}
-                <button className = "remove-person-button" onClick={() => removePerson(person.name)}>
+                <span className="person" key={person.name}>{person.name}
+                <button className="remove-person-button" onClick={() => removePerson(person.name)}>
                   ✕
                 </button>
                 </span>
@@ -487,9 +486,9 @@ function App() {
           </div>
 
           <button 
-            className = "primary-button" 
-            onClick = {handleCalculate}
-            disabled = {isCalculating}
+            className="primary-button" 
+            onClick={handleCalculate}
+            disabled={isCalculating}
           >
             {isCalculating ? "Calculating..." : "Calculate"}
           </button>
@@ -498,11 +497,11 @@ function App() {
         
       )}
       {splitResult && (
-        <div className = " split-section">
+        <div className="split-section">
           <h2>Split</h2>
 
           {Object.entries(splitResult).map(([name, amount]) => (
-            <div className = "split-row" key = {name}>
+            <div className="split-row" key={name}>
               <p>
                 {name}: ${amount.toFixed(2)}
               </p>

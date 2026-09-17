@@ -18,8 +18,8 @@ A web app that extracts items from a receipt and calculates how much each person
 1. User uploads a receipt image.
 2. Gemini extracts receipt items, quantities, and pricing information.
 3. User reviews and corrects extracted data if needed.
-4. User assigns people to individual or shared items
-5. Calculation engine splits item costs, tax, and tip
+4. User assigns people to individual or shared items.
+5. Calculation engine splits item costs, tax, and tip.
 
 ## Tech Stack
 
