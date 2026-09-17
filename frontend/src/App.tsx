@@ -26,6 +26,7 @@ function App() {
   
   const totalCents = receipt ? subtotalCents + toCents(receipt.tax) + toCents(receipt.tip) : 0
 
+
   async function handleUpload() {
     if (!selectedFile) {
       return
@@ -53,6 +54,7 @@ function App() {
 
       const data = await response.json()
       setReceipt(data)
+      setSplitResult(null)
       setErrorMessage("")
     } catch {
       setErrorMessage("Unable to connect to server.")
@@ -60,6 +62,7 @@ function App() {
       setIsUploading(false)
     }
   }
+
 
   async function handleCalculate() {
     if (!receipt) {
@@ -96,6 +99,8 @@ function App() {
     const receiptToCalculate = {
       ...receipt,
       subtotal: fromCents(subtotalCents),
+      tax: receipt.tax === "" ? "0.00" : receipt.tax,
+      tip: receipt.tip === "" ? "0.00" : receipt.tip,
       total: fromCents(totalCents)
     }
     
@@ -128,6 +133,7 @@ function App() {
     }
   }
 
+
   function updateItem(index: number, field: "name" | "price", value: string) {
     if (!receipt) {
       return
@@ -147,6 +153,7 @@ function App() {
 
     setSplitResult(null)
   }
+
 
   function updateQuantity(index: number, quantity: number | "") {
     if (!receipt) {
@@ -168,6 +175,7 @@ function App() {
     setSplitResult(null)
   }
 
+
   function updateReceipt(field: "tax" | "tip", value: string) {
     if (!receipt) {
       return
@@ -181,15 +189,18 @@ function App() {
     setSplitResult(null)
   }
 
+
   function toCents(value: string) {
 
     return Math.round(Number(value) * 100)
 
   }
 
+
   function fromCents(value: number) {
     return (value / 100).toFixed(2)
   }
+
 
   function addPerson() {
     if (!receipt || !personName.trim()) {
@@ -221,6 +232,7 @@ function App() {
     setSplitResult(null)
   }
 
+
   function removePerson(name: string) {
     if (!receipt) {
       return
@@ -245,6 +257,7 @@ function App() {
 
     setSplitResult(null)
   }
+
 
   function togglePersonForItem(itemIndex: number, person: Person) {
     if (!receipt) {
@@ -273,6 +286,7 @@ function App() {
     })
     setSplitResult(null)
   }
+
 
   function addItem() {
     if (!receipt) {
@@ -310,6 +324,7 @@ function App() {
 
     setSplitResult(null)
   }
+
 
   return (
     <div className="app">
